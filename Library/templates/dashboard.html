@@ -1,0 +1,140 @@
+
+{% extends 'master/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4 mt-3">Dashboard</h2>
+
+<!-- Dashboard Summary -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="card bg-primary text-white shadow">
+            <div class="card-body">
+                <h5>Total Books</h5>
+                <h2>{{ total_books }}</h2>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_staff %}
+    <div class="col-md-4">
+        <div class="card bg-success text-white shadow">
+            <div class="card-body">
+                <h5>Total Members</h5>
+                <h2>{{ total_members }}</h2>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark shadow">
+            <div class="card-body">
+                <h5>Issued Books</h5>
+                <h2>{{ total_issued }}</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Issued Books Information -->
+<h4 class="mb-3">Issued Books Information</h4>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped bg-white">
+
+        <thead class="table-primary">
+            <tr>
+                <th>Book</th>
+
+                {% if user.is_staff %}
+                    <th>Member</th>
+                {% endif %}
+
+                <th>Issue Date</th>
+                <th>Return Date</th>
+                <th>Fine (Tk)</th>
+                <th>Status</th>
+
+                {% if not user.is_staff %}
+                    <th>Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for issue in issued_books %}
+            <tr>
+
+                <td>{{ issue.book.title }}</td>
+
+                {% if user.is_staff %}
+                    <td>{{ issue.member.username }}</td>
+                {% endif %}
+
+                <td>{{ issue.issue_date }}</td>
+                <td>{{ issue.return_date }}</td>
+                <td>{{ issue.fine }}</td>
+
+                <td>
+                    {% if issue.is_returned %}
+                        <span class="badge bg-success">
+                            Returned
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">
+                            Issued
+                        </span>
+                    {% endif %}
+                </td>
+
+                {% if not user.is_staff %}
+                <td>
+                    {% if not issue.is_returned %}
+                        <form method="POST"
+                              action="{% url 'return_book' issue.id %}">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Return
+                            </button>
+
+                        </form>
+                    {% else %}
+                        <span class="text-success">Completed</span>
+                    {% endif %}
+                </td>
+                {% endif %}
+
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="{% if user.is_staff %}6{% else %}7{% endif %}"
+                    class="text-center text-muted py-4">
+
+                    No issued books found.
+
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+</div>
+
+<!-- Total Fine -->
+<div class="alert alert-info">
+    <strong>Total Fine:</strong>
+    Tk {{ total_fine|default:"0.00" }}
+</div>
+
+{% endblock %}

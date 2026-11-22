@@ -1,0 +1,30 @@
+
+{% extends 'master/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Book Form{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7">
+
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+
+                <h3 class="mb-4">{{ title }}</h3>
+
+                {% crispy form %}
+
+                <a href="{% url 'book_list' %}"
+                   class="btn btn-secondary mt-2">
+                    Back
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
